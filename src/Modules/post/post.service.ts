@@ -1,6 +1,6 @@
-import { Post, PostStatus } from '../../generated/prisma/client';
-import { PostWhereInput } from '../../generated/prisma/models';
-import { prisma } from '../lib/prisma';
+import { Post, PostStatus } from '../../../generated/prisma/client';
+import { PostWhereInput } from '../../../generated/prisma/models';
+import { prisma } from '../../lib/prisma';
 
 const createPost = async (
   data: Omit<Post, 'id' | 'createdAt' | 'updatedAt' | 'authorId'>,
@@ -91,10 +91,47 @@ const getAllPost = async (payload: {
           }
         : { createdAt: 'desc' },
   });
-  return allPost;
+
+  //  get total count for pagination
+  const total = await prisma.post.count({
+    where: {
+      AND: andConditions,
+    },
+  });
+  return {
+    data: allPost,
+    pagination: {
+      total,
+      page: payload.page,
+      limit: payload.limit,
+      totalPages: Math.ceil(total / payload.limit),
+    },
+  };
+};
+
+const getPostById = async (postId: string) => {
+  return await prisma.$transaction(async tx => {
+    await tx.post.update({
+      where: {
+        id: postId,
+      },
+      data: {
+        view: {
+          increment: 1,
+        },
+      },
+    });
+    const postData = await tx.post.findUnique({
+      where: {
+        id: postId,
+      },
+    });
+    return postData;
+  });
 };
 
 export const PostService = {
   createPost,
   getAllPost,
+  getPostById,
 };

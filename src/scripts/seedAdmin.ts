@@ -23,7 +23,7 @@ async function seedAdmin() {
     }
 
     const signUpAdmin = await axios.post(
-      'http://localhost:3000/api/auth/sign-up/email',
+      `${process.env.Server_URL}/api/auth/sign-up/email`,
       adminData
     );
     console.log('Admin created successfully:', signUpAdmin);

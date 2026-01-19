@@ -29,11 +29,9 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       role: {
-
         type: 'string',
         defaultValue: 'USER',
 
-        
         required: false,
       },
       phone: {
@@ -52,9 +50,8 @@ export const auth = betterAuth({
   //    email verification
 
   emailVerification: {
-  sendOnSignUp: true,
-  autoSignInAfterVerification: true,
-
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
 
     sendVerificationEmail: async ({ user, url, token }, request) => {
       try {
@@ -73,12 +70,12 @@ export const auth = betterAuth({
   },
 
   // GOOGLE LOGIN
- socialProviders: {
-        google: { 
-            accessType: "offline", 
-            prompt: "select_account consent", 
-            clientId: process.env.GOOGLE_CLIENT_ID as string, 
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string, 
-        }, 
+  socialProviders: {
+    google: {
+      accessType: 'offline',
+      prompt: 'select_account consent',
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
+  },
 });

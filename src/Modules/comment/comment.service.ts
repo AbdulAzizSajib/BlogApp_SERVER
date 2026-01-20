@@ -30,6 +30,56 @@ const createComment = async (payload: {
   }
 };
 
+const getCommentById = async (commentId: string) => {
+  console.log('Comment ID', commentId);
+  return await prisma.comment.findUnique({
+    where: {
+      id: commentId,
+    },
+    include: {
+      post: {
+        select: {
+          id: true,
+          title: true,
+          view: true,
+        },
+      },
+    },
+  });
+};
+
+// const getCommentsByAuthor = async (authorId: string) => {
+//   return await prisma.comment.findMany({
+//     where: {
+//       authorId,
+//     },
+//   });
+// };
+
+const getCommentsByAuthor = async (authorId: string) => {
+  return await prisma.comment.findMany({
+    where: {
+      authorId,
+    },
+    orderBy: { createdAt: 'desc' },
+    include: {
+      post: {
+        select: {
+          id: true,
+          title: true,
+        },
+      },
+    },
+  });
+};
+
+const deleteComment = async (commentId: string, authorId: string) => {
+  console.log('commentId', commentId, 'authorId', authorId);
+};
+
 export const CommentService = {
   createComment,
+  getCommentById,
+  getCommentsByAuthor,
+  deleteComment,
 };

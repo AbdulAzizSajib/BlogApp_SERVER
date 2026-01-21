@@ -4,10 +4,19 @@ import express from 'express';
 
 const postRouter = express.Router();
 
-postRouter.post('/', checker(UserRole.ADMIN), PostController.createPost);
+postRouter.post(
+  '/',
+  checker(UserRole.ADMIN, UserRole.USER),
+  PostController.createPost
+);
 
 postRouter.get('/', PostController.getAllPost);
 
-postRouter.get('/:postId', PostController.getPostById);
+postRouter.get(
+  '/myPosts',
+  checker(UserRole.ADMIN, UserRole.USER),
+  PostController.getMyPosts
+);
 
+postRouter.get('/:postId', PostController.getPostById);
 export default postRouter;

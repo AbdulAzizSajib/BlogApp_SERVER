@@ -1,16 +1,14 @@
-import {
-  CommentStatus,
-  Post,
-  PostStatus,
-} from '../../../generated/prisma/client';
+import { CommentStatus, Post } from '../../../generated/prisma/client';
 import { PostWhereInput } from '../../../generated/prisma/models';
 import { prisma } from '../../lib/prisma';
+import { PostStatus } from './../../../generated/prisma/enums';
 
 const createPost = async (
   data: Omit<Post, 'id' | 'createdAt' | 'updatedAt' | 'authorId'>,
   userId: string
 ) => {
-  //logic
+  //logic to create post
+
   const result = await prisma.post.create({
     data: {
       ...data,
@@ -172,8 +170,35 @@ const getPostById = async (postId: string) => {
   });
 };
 
+const getMyPosts = async (authorId: string) => {
+  console.log(authorId);
+  await prisma.user.findUniqueOrThrow({
+    where: {
+      id: authorId,
+      status: 'ACTIVE',
+    },
+  });
+
+  return await prisma.post.findMany({
+    where: {
+      authorId,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    include: {
+      _count: {
+        select: {
+          comments: true,
+        },
+      },
+    },
+  });
+};
+
 export const PostService = {
   createPost,
   getAllPost,
   getPostById,
+  getMyPosts,
 };

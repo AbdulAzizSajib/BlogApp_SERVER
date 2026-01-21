@@ -6,8 +6,9 @@ import paginationSortingHelper from '../../helpers/paginationSortingHelper';
 const createPost = async (req: Request, res: Response) => {
   try {
     const user = req.user;
+
     if (!user) {
-      return res.status(400).json({
+      return res.status(401).json({
         error: 'Unauthorized!',
       });
     }
@@ -18,6 +19,10 @@ const createPost = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.log('error', error);
+    res.status(500).json({
+      message: error instanceof Error ? error.message : 'Something went wrong',
+      data: null,
+    });
   }
 };
 
@@ -72,7 +77,7 @@ const getAllPost = async (req: Request, res: Response) => {
 const getPostById = async (req: Request, res: Response) => {
   try {
     const postId = req.params.postId;
-    console.log('Post ID:', postId);
+    // console.log('Post ID:', postId);
     if (!postId) {
       return res.status(400).json({
         error: 'Post ID is required',
@@ -97,9 +102,33 @@ const getPostById = async (req: Request, res: Response) => {
     });
   }
 };
+const getMyPosts = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      return res.status(401).json({
+        message: 'Unauthorized',
+        data: null,
+      });
+    }
+    const result = await PostService.getMyPosts(user.id as string);
+
+    res.status(200).json({
+      message: 'Your posts fetched successfully',
+      data: result,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Something went wrong',
+      data: null,
+    });
+  }
+};
 
 export const PostController = {
   createPost,
   getAllPost,
   getPostById,
+  getMyPosts,
 };

@@ -1,3 +1,4 @@
+import { CommentStatus } from '../../../generated/prisma/enums';
 import { prisma } from '../../lib/prisma';
 
 const createComment = async (payload: {
@@ -73,8 +74,75 @@ const getCommentsByAuthor = async (authorId: string) => {
   });
 };
 
+// add cascade delete to prisma schema for comments so that replies are also deleted
 const deleteComment = async (commentId: string, authorId: string) => {
-  console.log('commentId', commentId, 'authorId', authorId);
+  const commentData = await prisma.comment.findFirstOrThrow({
+    where: {
+      id: commentId,
+      authorId: authorId,
+    },
+    select: {
+      id: true,
+      authorId: true,
+    },
+  });
+
+  return await prisma.comment.delete({
+    where: {
+      id: commentData.id,
+    },
+  });
+};
+
+const updateComment = async (
+  commentId: string,
+  authorId: string,
+  data: { content?: string; status?: CommentStatus }
+) => {
+  await prisma.comment.findFirstOrThrow({
+    where: {
+      id: commentId,
+      authorId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  return await prisma.comment.update({
+    where: {
+      id: commentId,
+      authorId,
+    },
+    data,
+  });
+};
+
+const moderateComment = async (
+  commentId: string,
+  data: { status: CommentStatus }
+) => {
+  console.log('commentId in service:', commentId, 'data:', data);
+  const commentData = await prisma.comment.findUniqueOrThrow({
+    where: {
+      id: commentId,
+    },
+    select: {
+      id: true,
+      status: true,
+    },
+  });
+
+  if (commentData.status === data.status) {
+    throw new Error('Comment is already in the desired status');
+  }
+
+  return await prisma.comment.update({
+    where: {
+      id: commentId,
+    },
+    data,
+  });
 };
 
 export const CommentService = {
@@ -82,4 +150,6 @@ export const CommentService = {
   getCommentById,
   getCommentsByAuthor,
   deleteComment,
+  updateComment,
+  moderateComment,
 };

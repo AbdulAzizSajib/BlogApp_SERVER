@@ -14,7 +14,18 @@ commentRouter.get('/author/:authorId', CommentController.getCommentsByAuthor);
 commentRouter.get('/author/:authorId', CommentController.getCommentsByAuthor);
 commentRouter.delete(
   '/:commentId',
-  // checker(UserRole.ADMIN, UserRole.USER),
+  checker(UserRole.ADMIN, UserRole.USER),
   CommentController.deleteComment
+);
+
+commentRouter.patch(
+  '/:commentId',
+  checker(UserRole.ADMIN, UserRole.USER),
+  CommentController.updateComment
+);
+commentRouter.patch(
+  '/:commentId/moderate',
+  checker(UserRole.ADMIN),
+  CommentController.moderateComment
 );
 export default commentRouter;

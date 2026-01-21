@@ -50,10 +50,54 @@ const deleteComment = async (req: Request, res: Response) => {
       commentId as string,
       user?.id as string
     );
-    res.status(200).json(result);
+    res.status(200).json({
+      message: 'Comment deleted successfully',
+      data: result,
+    });
   } catch (e) {
     res.status(400).json({
-      error: 'Comment fetched failed',
+      error: 'Comment deletion failed',
+      details: e,
+    });
+  }
+};
+const updateComment = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+    const { commentId } = req.params;
+    const result = await CommentService.updateComment(
+      commentId as string,
+      user?.id as string,
+      req.body
+    );
+    res.status(200).json({
+      message: 'Comment updated successfully',
+      data: result,
+    });
+  } catch (e) {
+    res.status(400).json({
+      error: 'Comment update failed',
+      details: e,
+    });
+  }
+};
+const moderateComment = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+    const { commentId } = req.params;
+    const result = await CommentService.moderateComment(
+      commentId as string,
+      req.body
+    );
+    res.status(200).json({
+      message: 'Comment moderated successfully',
+      data: result,
+    });
+  } catch (e) {
+    const errorMessage =
+      e instanceof Error ? e.message : 'Comment update failed!';
+    res.status(400).json({
+      error: errorMessage,
       details: e,
     });
   }
@@ -64,4 +108,6 @@ export const CommentController = {
   getCommentById,
   getCommentsByAuthor,
   deleteComment,
+  updateComment,
+  moderateComment,
 };
